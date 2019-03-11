@@ -32,15 +32,8 @@ spec:
         ports:
         - containerPort: 8080
           name: airflow-web
-        volumeMounts:
-        - mountPath: "/usr/local/airflow/dags"
-          name: airflow-volume
       hostname: airflow-web
       subdomain: airflow
-      volumes:
-      - name: airflow-volume
-        persistentVolumeClaim:
-          claimName: airflow
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -69,13 +62,6 @@ spec:
               key: postgres
         command: ["airflow"]
         args: ["scheduler"]
-        volumeMounts:
-        - mountPath: "/usr/local/airflow/dags"
-          name: airflow-volume
       hostname: airflow-sched
       subdomain: airflow
-      volumes:
-      - name: airflow-volume
-        persistentVolumeClaim:
-          claimName: airflow
     
