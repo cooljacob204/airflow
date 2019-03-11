@@ -22,7 +22,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: postgres-secret
-              key: postgres
+              key: postgres-conn
+        - name: AIRFLOW__CELERY__RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-backend
         - name: AIRFLOW__WEBSERVER__AUTHENTICATE
           value: "True"
         - name: AIRFLOW__WEBSERVER__AUTH_BACKEND
@@ -59,7 +64,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: postgres-secret
-              key: postgres
+              key: postgres-conn
+        - name: AIRFLOW__CELERY__RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-backend
         command: ["airflow"]
         args: ["scheduler"]
       hostname: scheduler
@@ -90,7 +100,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: postgres-secret
-              key: postgres
+              key: postgres-conn
+        - name: AIRFLOW__CELERY__RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-backend
         command: ["airflow"]
         args: ["worker"]
       subdomain: airflow
