@@ -1,0 +1,67 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: airflow-web
+  labels:
+    app: airflow-web
+spec:
+  selector:
+    matchLabels:
+      app: airflow-web
+  template:
+    metadata:
+      labels:
+        app: airflow-web
+        name: airflow
+    spec:
+      containers:
+      - image: puckel/docker-airflow
+        name: airflow-web
+        env:
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres
+        - name: AIRFLOW__WEBSERVER__AUTHENTICATE
+          value: "True"
+        - name: AIRFLOW__WEBSERVER__AUTH_BACKEND
+          value: "airflow.contrib.auth.backends.password_auth"
+        command: ["/bin/bash","-c"]
+        args: ["python -m pip install --user apache-airflow[password]; airflow webserver"]
+        ports:
+        - containerPort: 8080
+          name: airflow-web
+      hostname: airflow-web
+      subdomain: airflow
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: airflow-sched
+  labels:
+    app: airflow-sched
+spec:
+  selector:
+    matchLabels:
+      app: airflow-sched
+  template:
+    metadata:
+      labels:
+        app: airflow-sched
+        name: airflow
+    spec:
+      containers:
+      - image: puckel/docker-airflow
+        name: airflow-sched
+        env:
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres
+        command: ["airflow"]
+        args: ["scheduler"]
+      hostname: airflow-sched
+      subdomain: airflow
+    
