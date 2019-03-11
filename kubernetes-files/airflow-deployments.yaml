@@ -1,3 +1,4 @@
+# webserver
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -40,6 +41,7 @@ spec:
       hostname: webserver
       subdomain: airflow
 ---
+# scheduler
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -75,6 +77,7 @@ spec:
       hostname: scheduler
       subdomain: airflow
 ---
+# workers
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -110,6 +113,7 @@ spec:
         args: ["worker"]
       subdomain: airflow
 ---
+# redis for celery
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -133,4 +137,42 @@ spec:
         - containerPort: 6379
           name: redis
       hostname: redis
+      subdomain: airflow
+---
+# flower
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: airflow-flower
+  labels:
+    app: airflow-flower
+spec:
+  selector:
+    matchLabels:
+      app: airflow-flower
+  template:
+    metadata:
+      labels:
+        app: airflow-flower
+        name: airflow
+    spec:
+      containers:
+      - image: cooljacob204/airflow
+        name: airflow-flower
+        env:
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-conn
+        - name: AIRFLOW__CELERY__RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-backend
+        command: ["airflow"]
+        args: ["flower"]
+        ports:
+        - containerPort: 5555
+          name: redis
       subdomain: airflow
