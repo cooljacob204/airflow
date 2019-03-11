@@ -1,3 +1,3 @@
 FROM puckel/docker-airflow
 
-RUN "pip install apache-airflow[password]"
+RUN ["python", "-m", "pip", "install", "--user", "apache-airflow[password]"]
