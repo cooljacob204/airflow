@@ -15,7 +15,7 @@ spec:
         name: airflow
     spec:
       containers:
-      - image: puckel/docker-airflow
+      - image: cooljacob204/airflow
         name: airflow-web
         env:
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
@@ -27,13 +27,20 @@ spec:
           value: "True"
         - name: AIRFLOW__WEBSERVER__AUTH_BACKEND
           value: "airflow.contrib.auth.backends.password_auth"
-        command: ["/bin/bash","-c"]
-        args: ["python -m pip install --user apache-airflow[password]; airflow webserver"]
+        command: ["airflow"]
+        args: ["webserver"]
         ports:
         - containerPort: 8080
           name: airflow-web
+        volumeMounts:
+        - mountPath: "/usr/local/airflow/dags"
+          name: airflow-volume
       hostname: airflow-web
       subdomain: airflow
+      volumes:
+      - name: airflow-volume
+        persistentVolumeClaim:
+          claimName: airflow
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -52,7 +59,7 @@ spec:
         name: airflow
     spec:
       containers:
-      - image: puckel/docker-airflow
+      - image: cooljacob204/airflow
         name: airflow-sched
         env:
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
@@ -62,6 +69,13 @@ spec:
               key: postgres
         command: ["airflow"]
         args: ["scheduler"]
+        volumeMounts:
+        - mountPath: "/usr/local/airflow/dags"
+          name: airflow-volume
       hostname: airflow-sched
       subdomain: airflow
+      volumes:
+      - name: airflow-volume
+        persistentVolumeClaim:
+          claimName: airflow
     
