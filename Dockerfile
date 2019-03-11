@@ -1,3 +1,3 @@
 FROM puckel/docker-airflow
 
-ARG AIRFLOW_DEPS=password
+RUN "pip install apache-airflow[password]"
